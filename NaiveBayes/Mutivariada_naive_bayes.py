@@ -2,7 +2,14 @@ import numpy as np
 import math
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.naive_bayes import GaussianNB
-from scipy.stats import multivariate_normal
+class Metricas():
+    def acuracia(self,y_true, y_pred):
+        cont = 0
+        for i in range(len(y_true)):
+            if(y_true[i] == y_pred[i]):
+                cont += 1
+        print(cont/len(y_true))
+        return(cont/len(y_true))
 class NaiveBayesGaussiano():
     def __init__(self):
         self.medias = {}
@@ -41,9 +48,11 @@ class NaiveBayesGaussiano():
                     m_x[i][j] = 0
         return m_x
     def probabilidade(self, x, media, covariancia):
-        exp = np.exp(((x-media).T * np.linalg.inv(covariancia) @ (x-media))) * (-1/2)
-        p = ((1/((np.linalg.det(covariancia) **(1/2)) * ((2*np.pi)**(len(x)/2))))) * exp
-        return np.sum((p))
+        exp = np.exp(((x-media).T @ np.linalg.inv(covariancia) @ (x-media))) * (-1/2)
+        p = (((1/((np.linalg.det(covariancia) **(1/2)) * ((2*np.pi)**(len(x)/2))))) * exp)
+
+        #p = np.log(np.linalg.det(covariancia)) + (x - media).T * np.linalg.inv(covariancia) @ (x - media)
+        return p
     
     def fit(self, X, y):
         self.n = len(X)
@@ -71,7 +80,7 @@ class NaiveBayesGaussiano():
        
         
         for i in self.classes:
-            c[i] = ((c[i] * np.array([[p[i]]])))
+            c[i] = ((-2  * np.log(c[i]) * np.array([[p[i]]])))
         
         a = c[0][0]
         a = np.c_[a, c[1][0]]
@@ -86,9 +95,9 @@ class NaiveBayesGaussiano():
         m = []
         m1 = []
         for i in range(len(self.medias)):
-            posterior = (((self.probabilidade(x, self.medias[i], self.covariancias[i]))))
-            anterior =(self.p_anteriores[i]) 
-            posterior *= anterior
+            posterior = np.prod(((self.probabilidade(x, self.medias[i], self.covariancias[i]))))
+            anterior = -2 * np.log(self.p_anteriores[i]) 
+            posterior *= anterior 
             m.append(posterior)
         return(self.classes[np.argmax(m)])
        
@@ -101,37 +110,41 @@ class NaiveBayesGaussiano():
     def predict(self, X):
         m = []
         m1 = []
-        indice = -np.inf
         for x in X:
             for i in range(len(self.medias)):
-                a = (self.probabilidade(x, self.medias[i], self.covariancias[i]))
+                a = (self.probabilidade(x, self.medias[i], self.covariancias[i]))* -2 * np.log(self.p_anteriores[i])
                 m.append(a)
             m1.append(m)
             m =[] 
         for i in m1:
             m.append(np.argmax(i))
         print(np.array(m ) * 1.0)
-data = np.loadtxt("c:/Users/bruno/Desktop/teste/ex2data1.txt", skiprows=1, delimiter=",")
-np.random.shuffle(data)
-X = data[:, 0: -1]
-y = data[: , 2]
-n = X.shape[0]
-n_train = int(n*0.7)
-n_test = n - n_train
-X_train = X[:n_train]
-X_test = X[-n_test:]
-y_train = y[:n_train]
-y_test = y[-n_test:]
+        return(np.array(m) * 1.0)
 
-nb = NaiveBayesGaussiano()
-nb.fit(X_train,y_train)
-nb.predict2(X_test)
-nb.predict(X_test)
-nb.predic_probabilidade(X_test)
-q = QuadraticDiscriminantAnalysis()
-q.fit(X_train, y_train)
-print(q.predict(X_test))
-g = GaussianNB()
-g.fit(X_train, y_train)
-print(g.predict(X_test))
+if __name__ == "__main__":
+    data = np.loadtxt("./teste/ex2data1.txt", skiprows=1, delimiter=",")
+    np.random.shuffle(data)
+    X = data[:, 0: -1]
+    y = data[: , 2]
+    n = X.shape[0]
+    n_train = int(n*0.7)
+    n_test = n - n_train
+    X_train = X[:n_train]
+    X_test = X[-n_test:]
+    y_train = y[:n_train]
+    y_test = y[-n_test:]
+
+    nb = NaiveBayesGaussiano()
+    nb.fit(X_train,y_train)
+    #nb.predict2(X_test)
+    #nb.predict(X_test)
+    #nb.predic_probabilidade(X_test)
+    q = QuadraticDiscriminantAnalysis()
+    q.fit(X_train, y_train)
+    print(q.predict(X_test))
+    g = GaussianNB()
+    g.fit(X_train, y_train)
+    print(g.predict(X_test))
+
+ 
 

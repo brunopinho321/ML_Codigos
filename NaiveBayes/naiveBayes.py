@@ -1,6 +1,6 @@
 import numpy as np
-from sklearn.naive_bayes import GaussianNB
-
+import Mutivariada_naive_bayes as mnb
+import RegressaoLogistica as Rl
 class NaiveBayes:
     def __init__(self):
         pass
@@ -29,15 +29,15 @@ class NaiveBayes:
             self.medias[i,:] = X_.mean(axis=0)
             self.variancias[i,:] = self.variancia(X_)
             self.p_anteriores[i] = X_.shape[0] / float(n)
-        print(self.variancias)
+       
     
     def predict_prob(self, X):
         p_posteriores = []
 
         for i, c in enumerate(self.classes):
-            anterior = np.log(self.p_anteriores[i])
-            posterior = np.sum(np.log(self.prob(i, X)))
-            posterior += anterior
+            anterior = (self.p_anteriores[i])
+            posterior = np.prod((self.prob(i, X)))
+            posterior *= anterior
             p_posteriores.append(posterior)
         return self.classes[np.argmax(p_posteriores)]     
 
@@ -49,7 +49,7 @@ class NaiveBayes:
     
     
 
-data = np.loadtxt("c:/Users/bruno/Desktop/teste/ex2data1.txt", skiprows=1, delimiter=",")
+data = np.loadtxt("./teste/ex2data1.txt", skiprows=1, delimiter=",")
 np.random.shuffle(data)
 X = data[:, 0: -1]
 y = data[: , 2]
@@ -65,6 +65,13 @@ y_test = y[-n_test:]
 g = NaiveBayes()
 g.fit(X_train, y_train)
 print(g.predict(X_test))
-nb =GaussianNB()
-nb.fit(X_train, y_train)
-print(nb.predict(X_test))
+a = mnb.Metricas()
+b = mnb.NaiveBayesGaussiano()
+b.fit(X_train, y_train)
+a.acuracia(y_test, g.predict(X_test))
+a.acuracia(y_test, b.predict(X_test))
+
+c = Rl.RegressaoLogistica()
+c.fit(X_train, y_train)
+print(c.predict(X_test))
+a.acuracia(y_test, c.predict(X_test))
