@@ -200,7 +200,7 @@ class RegressaoLogistica:
     def logistica(self, x):
         return 1/ (1 + np.exp(-x))
 if __name__ == "__main__":
-    data = np.loadtxt("./teste/ex2data1.txt", skiprows=1, delimiter=",")
+    data = np.loadtxt(".\ex2data1.txt", skiprows=1, delimiter=",")
     np.random.shuffle(data)
     X = data[:, 0: -1]
     y = data[: , 2]
@@ -214,12 +214,4 @@ if __name__ == "__main__":
     g = LogisticRegression3()
     g.fit(X_train, y_train)
     a = g.predict(X_test)
-    print(a)
-
-    l = RegressaoLogistica()
-    l.fit(X_train, y_train)
-    print(l.predict(X_test))
-
-    k = LogisticRegression()
-    k.fit(X_train, y_train)
-    print(k.predict(X_test))
+   

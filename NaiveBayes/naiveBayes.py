@@ -1,6 +1,49 @@
 import numpy as np
+import re
 import Mutivariada_naive_bayes as mnb
 import RegressaoLogistica as Rl
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import confusion_matrix
+import matplotlib.pyplot as plt
+from sklearn.svm import SVC
+def plot_confusion_matrix(X_, y_, clf): 
+    true  = y_
+    classes = np.unique(y_)
+    nome = (re.sub(r'^[^.]*.', '', str(clf.__class__)))
+    nome = re.sub("'>",'' ,nome)
+    pred = clf.predict(X_)
+    cm = confusion_Matrix(true, pred)
+    fig, ax = plt.subplots()
+    titulo = "Matriz de confusão | Classificador: "+nome
+    im = ax.imshow(cm, interpolation='nearest', cmap = plt.cm.Blues)
+    ax.figure.colorbar(im, ax = ax)
+    ax.set(xticks=np.arange(cm.shape[1]),
+            yticks=np.arange(cm.shape[0]),
+            xticklabels = classes, yticklabels = classes, title=titulo,
+            ylabel = 'True label',
+            xlabel =  'Predicted label' )
+    plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
+    thresh = cm.max()/ 2.
+    for i in range(cm.shape[0]):
+        for j in range(cm.shape[1]):
+            ax.text(j, i, format(int(cm[i, j]), str('d')),
+                    ha="center", va="center",
+                    color="white" if cm[i, j] > thresh else "black")
+    fig.tight_layout()
+    return ax
+def confusion_Matrix(true, pred):
+    b = np.unique(true)
+    for i in range(len(true)):
+        true[i] = int((true[i]))
+        pred[i] = int((pred[i]))
+    k = len(np.unique(true))
+    result = np.zeros((k,k))
+    for i, j in zip(true, pred):
+        result[int(i)][int(j)] += 1
+
+    return np.matrix(result)
+
+
 class NaiveBayes:
     def __init__(self):
         pass
@@ -29,8 +72,7 @@ class NaiveBayes:
             self.medias[i,:] = X_.mean(axis=0)
             self.variancias[i,:] = self.variancia(X_)
             self.p_anteriores[i] = X_.shape[0] / float(n)
-       
-    
+
     def predict_prob(self, X):
         p_posteriores = []
 
@@ -49,7 +91,7 @@ class NaiveBayes:
     
     
 
-data = np.loadtxt("./teste/ex2data1.txt", skiprows=1, delimiter=",")
+data = np.loadtxt("C:/Users/Janaina/Desktop/ML_Codigos/NaiveBayes/ex2data1.txt", skiprows=1, delimiter=",")
 np.random.shuffle(data)
 X = data[:, 0: -1]
 y = data[: , 2]
@@ -64,14 +106,15 @@ y_test = y[-n_test:]
 
 g = NaiveBayes()
 g.fit(X_train, y_train)
-print(g.predict(X_test))
 a = mnb.Metricas()
 b = mnb.NaiveBayesGaussiano()
 b.fit(X_train, y_train)
-a.acuracia(y_test, g.predict(X_test))
-a.acuracia(y_test, b.predict(X_test))
-
 c = Rl.RegressaoLogistica()
 c.fit(X_train, y_train)
-print(c.predict(X_test))
 a.acuracia(y_test, c.predict(X_test))
+
+plot_confusion_matrix(X_train, y_train, b)
+#plot_confusion_matrix(X_train, y_train, c)
+#plot_confusion_matrix(X_train, y_train, g)
+
+#plt.show()
