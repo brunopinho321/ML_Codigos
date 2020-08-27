@@ -8,7 +8,6 @@ class Metricas():
         for i in range(len(y_true)):
             if(y_true[i] == y_pred[i]):
                 cont += 1
-        print(cont/len(y_true))
         return(cont/len(y_true))
 class NaiveBayesGaussiano():
     def __init__(self):
@@ -65,32 +64,6 @@ class NaiveBayesGaussiano():
             self.covariancias[i] = self.matrizDeCovariancia(self.X_[i])
             self.p_anteriores[i] = self.X_[i].shape[0]/self.n
 
-    def  predic_probabilidade(self, X):
-        c = {}
-        a = []
-        p = {}
-        for i in self.classes:
-            for x in X:
-                a.append(np.array(self.probabilidade(x, self.medias[i], self.covariancias[i])))
-            c[i] = np.array(a)
-            a = []
-        #print(c)
-        for i in self.classes:
-            p[i] = len(self.X_[i])/self.n
-       
-        
-        for i in self.classes:
-            c[i] = ((-2  * np.log(c[i]) * np.array([[p[i]]])))
-        
-        a = c[0][0]
-        a = np.c_[a, c[1][0]]
-       # print(a)
-        b = []
-        for i in a:
-           b.append(np.argmax(i)*1.0)
-        print(np.array(b))
-
-    
     def predict_prob(self, x):
         m = []
         m1 = []
@@ -100,12 +73,6 @@ class NaiveBayesGaussiano():
             posterior *= anterior 
             m.append(posterior)
         return(self.classes[np.argmax(m)])
-       
-    def predict2(self, X):
-        y_pred = []
-        for x in X:
-           y_pred.append(self.predict_prob(x))
-        print(np.array(y_pred))
 
     def predict(self, X):
         m = []
@@ -118,7 +85,6 @@ class NaiveBayesGaussiano():
             m =[] 
         for i in m1:
             m.append(np.argmax(i))
-        print(np.array(m ) * 1.0)
         return(np.array(m) * 1.0)
 
 if __name__ == "__main__":
@@ -134,17 +100,6 @@ if __name__ == "__main__":
     y_train = y[:n_train]
     y_test = y[-n_test:]
 
-    nb = NaiveBayesGaussiano()
-    nb.fit(X_train,y_train)
-    #nb.predict2(X_test)
-    #nb.predict(X_test)
-    #nb.predic_probabilidade(X_test)
-    q = QuadraticDiscriminantAnalysis()
-    q.fit(X_train, y_train)
-    print(q.predict(X_test))
-    g = GaussianNB()
-    g.fit(X_train, y_train)
-    print(g.predict(X_test))
-
+    
  
 

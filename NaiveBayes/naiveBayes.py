@@ -1,11 +1,31 @@
 import numpy as np
 import re
-import Mutivariada_naive_bayes as mnb
+import NaiveBayesDiscriminante as mnb
 import RegressaoLogistica as Rl
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import confusion_matrix
 import matplotlib.pyplot as plt
-from sklearn.svm import SVC
+def plot_boundaries(X, y, clf):
+    x_min, x_max = X[:, 0].min() - .5, X[:, 0].max() + .5
+    y_min, y_max = X[:, 1].min() - .5, X[:, 1].max() + .5
+    h = .16
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
+    print(len(xx.ravel()))
+    Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+    print(Z)
+    plt.figure(1, figsize = (4, 3))
+    plt.pcolormesh(xx, yy, Z, shading = 'auto', cmap=plt.cm.Paired)
+
+    plt.scatter(X[:, 0], X[:, 1], c = y, edgecolors='k', cmap = plt.cm.Paired)
+    plt.xlabel('Sepal length')
+    plt.ylabel('Sepal width')
+
+    plt.xlim(xx.min(), xx.max())
+    plt.xlim(yy.min(), yy.max())
+    plt.xticks(())
+    plt.yticks(())  
+
+    plt.show()
 def plot_confusion_matrix(X_, y_, clf): 
     true  = y_
     classes = np.unique(y_)
@@ -30,9 +50,9 @@ def plot_confusion_matrix(X_, y_, clf):
                     ha="center", va="center",
                     color="white" if cm[i, j] > thresh else "black")
     fig.tight_layout()
+    print(cm)
     return ax
 def confusion_Matrix(true, pred):
-    b = np.unique(true)
     for i in range(len(true)):
         true[i] = int((true[i]))
         pred[i] = int((pred[i]))
@@ -110,10 +130,12 @@ a = mnb.Metricas()
 b = mnb.NaiveBayesGaussiano()
 b.fit(X_train, y_train)
 c = Rl.RegressaoLogistica()
+c2 = LogisticRegression()
+c2.fit(X_train, y_train)
 c.fit(X_train, y_train)
-a.acuracia(y_test, c.predict(X_test))
-
-plot_confusion_matrix(X_train, y_train, b)
+#a.acuracia(y_test, c.predict(X_test))
+print(g.predict(X_test))
+plot_boundaries(X_test, y_test, g)
 #plot_confusion_matrix(X_train, y_train, c)
 #plot_confusion_matrix(X_train, y_train, g)
 
